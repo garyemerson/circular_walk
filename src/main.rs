@@ -32,13 +32,16 @@ fn get_min_hops(r: &Vec<usize>, n: usize, s: usize, t: usize) -> Option<usize> {
     // let mut prev: Vec<Option<usize>> = vec![None; r.len()];
     dist[s] = Some(0);
     for nb in get_neighbours(s, n, r[s]) {
-        dist[nb] = Some(1);
+        if nb != s {
+            dist[nb] = Some(1);
+        }
     }
 
-    while let Some(curr) = get_min_unvisited(n, &visited, &dist) {
+    while let Some(curr) = get_next_visit(n, &visited, &dist) {
         // println!("neighbours of {} are {:?}", curr, get_neighbours(curr, n, r[curr]).collect::<Vec<usize>>());
         for nb in get_neighbours(curr, n, r[curr]) {
             if dist[nb].is_none() || dist[curr].unwrap() + 1 < dist[nb].unwrap() {
+                // println!("{} from {} is {} rather than {:?}", nb, curr, dist[curr].unwrap() + 1, dist[nb]);
                 dist[nb] = Some(dist[curr].unwrap() + 1);
             }
         }
@@ -47,7 +50,7 @@ fn get_min_hops(r: &Vec<usize>, n: usize, s: usize, t: usize) -> Option<usize> {
     dist[t]
 }
 
-fn get_min_unvisited(n: usize, visited: &Vec<bool>, dist: &Vec<Option<usize>>) -> Option<usize> {
+fn get_next_visit(n: usize, visited: &Vec<bool>, dist: &Vec<Option<usize>>) -> Option<usize> {
     let mut min = None;
     for node in 0..n {
         if !visited[node] && 
@@ -101,4 +104,10 @@ fn no_path() {
 fn no_path2() {
     let r = vec![4, 0, 1, 0, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
     assert_eq!(get_min_hops(&r, 19, 2, 13), None);
+}
+
+#[test]
+fn alread_there() {
+    let r = vec![4, 0, 1, 0, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    assert_eq!(get_min_hops(&r, 19, 2, 2), Some(0));
 }
